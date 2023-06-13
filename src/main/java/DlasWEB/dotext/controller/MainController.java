@@ -37,7 +37,7 @@ public class MainController {
         return blocksWithText.stream().filter(textBlocks -> textBlocks.get("id").equals(id)).findFirst().orElseThrow(NotFoundExeption::new);
     }
 
-    @PostMapping
+    @PostMapping("/text")
     public Map<String, String> createBlockWithText(@RequestBody Map<String, String> blockWithText) {
         blockWithText.put("id", String.valueOf(counter++));
         blocksWithText.add(blockWithText);
@@ -47,7 +47,7 @@ public class MainController {
     @PutMapping("text/{id}")
     public Map<String, String> updateBlockWithText(@PathVariable String id, @RequestBody Map<String, String> blockWithText) {
         Map<String, String> blockTextFromDb = getBlockWithText(id);
-        blockTextFromDb.putAll((Map<? extends String, ? extends String>) blocksWithText);
+        blockTextFromDb.putAll(blockWithText);
         blockTextFromDb.put("id", id);
         return blockTextFromDb;
     }
