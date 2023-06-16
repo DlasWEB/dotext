@@ -2,17 +2,17 @@ package DlasWEB.dotext.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonView;
+import jakarta.persistence.*;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
-import javax.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
 @Table
 @ToString(of = {"id", "text"})
 @EqualsAndHashCode(of = {"id"})
-public class Block {
+public class BlockForMySql {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @JsonView(Views.IdName.class)

@@ -1,6 +1,6 @@
 package DlasWEB.dotext.controller;
 
-import DlasWEB.dotext.model.Block;
+import DlasWEB.dotext.model.BlockForMySql;
 import DlasWEB.dotext.model.Views;
 import DlasWEB.dotext.repo.BlockRepoMySql;
 import com.fasterxml.jackson.annotation.JsonView;
@@ -28,28 +28,28 @@ public class MainController {
 
     @GetMapping("text")
     @JsonView(Views.FullText.class)
-    public List<Block> getAllBlocksWithTextFromApi() {
+    public List<BlockForMySql> getAllBlocksWithTextFromApi() {
 
         return blockRepoMySql.findAll();
     }
 
     @GetMapping("text/{id}")
     @JsonView(Views.FullText.class)
-    public Block getOneBlockWithTextByIdFromApi(@PathVariable("id") Block block) {
+    public BlockForMySql getOneBlockWithTextByIdFromApi(@PathVariable("id") BlockForMySql block) {
         return block;
     }
 
     @PostMapping("/text")
     @JsonView(Views.FullText.class)
-    public Block createBlockWithText(@RequestBody Block block) {
-        block.setCreationDate(LocalDateTime.now());
-        return blockRepoMySql.save(block);
+    public BlockForMySql createBlockWithText(@RequestBody BlockForMySql blockForMySql) {
+        blockForMySql.setCreationDate(LocalDateTime.now());
+        return blockRepoMySql.save(blockForMySql);
     }
 
     @PutMapping("text/{id}")
-    public Block updateBlockWithText(
-            @PathVariable("id") Block blockFromDb,
-            @RequestBody Block block
+    public BlockForMySql updateBlockWithText(
+            @PathVariable("id") BlockForMySql blockFromDb,
+            @RequestBody BlockForMySql block
     ) {
         BeanUtils.copyProperties(block, blockFromDb, "id");
         return blockRepoMySql.save(blockFromDb);
@@ -57,7 +57,7 @@ public class MainController {
 
     @DeleteMapping("text/{id}")
     public void deleteBlockWithText(
-            @PathVariable("id") Block block
+            @PathVariable("id") BlockForMySql block
     ) {
         blockRepoMySql.delete(block);
     }

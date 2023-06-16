@@ -1,9 +1,9 @@
 package DlasWEB.dotext.repo;
 
-import DlasWEB.dotext.model.Block;
+import DlasWEB.dotext.model.BlockForMySql;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface BlockRepoMySql extends JpaRepository<Block, Long> {
+public interface BlockRepoMySql extends JpaRepository<BlockForMySql, Long> {
 }
