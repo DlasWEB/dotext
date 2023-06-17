@@ -74,7 +74,7 @@ public class MainController {
     public BlockForMongo updateBlockWithText(
             @PathVariable("id") BlockForMongo blockFromDb
            , @RequestBody BlockForMongo block
-    ) {
+    ) { 
             return blockForMongo.setText(block.getText());
     }
 
