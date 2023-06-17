@@ -4,6 +4,8 @@ import DlasWEB.dotext.model.BlockForMongo;
 import DlasWEB.dotext.model.BlockForMySql;
 import DlasWEB.dotext.repo.BlockRepoMongoDb;
 import DlasWEB.dotext.repo.BlockRepoMySql;
+import DlasWEB.dotext.service.BlockMongoService;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,6 +17,9 @@ import java.util.Optional;
 public class MainController {
     private final BlockRepoMySql blockRepoMySql;
     private final BlockRepoMongoDb blockRepoMongoDb;
+
+    @Autowired
+    private BlockMongoService blockMongoService;
 
     @Autowired
     public MainController(BlockRepoMySql blockRepoMySql, BlockRepoMongoDb blockRepoMongoDb) {
@@ -72,10 +77,11 @@ public class MainController {
     // Update one doc in Mongo
     @PutMapping("text/{id}")
     public BlockForMongo updateBlockWithText(
-            @PathVariable("id") BlockForMongo blockFromDb
-           , @RequestBody BlockForMongo block
-    ) { 
-            return blockForMongo.setText(block.getText());
+            @PathVariable("id") BlockForMongo blockFromDb,
+            @RequestBody BlockForMongo block
+    ) {
+            BeanUtils.copyProperties(block, blockFromDb, "id");
+            return blockRepoMongoDb.save(blockFromDb);
     }
 
 //    // Update one row in Mysql
@@ -90,8 +96,16 @@ public class MainController {
 
     @DeleteMapping("text/{id}")
     public void deleteBlockWithText(
-            @PathVariable("id") BlockForMySql block
+            @PathVariable("id") BlockForMongo block
     ) {
-        blockRepoMySql.delete(block);
+        blockRepoMongoDb.delete(block);
     }
+
+//      // Delete one doc from Mongo
+//    @DeleteMapping("text/{id}")
+//    public void deleteBlockWithText(
+//            @PathVariable("id") BlockForMySql block
+//    ) {
+//        blockRepoMySql.delete(block);
+//    }
 }
