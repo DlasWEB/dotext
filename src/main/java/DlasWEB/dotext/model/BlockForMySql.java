@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 @EqualsAndHashCode(of = {"id"})
 public class BlockForMySql {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @JsonView(Views.IdName.class)
     private Long id;
     @JsonView(Views.IdName.class)
@@ -45,6 +45,14 @@ public class BlockForMySql {
     }
 
     public void setCreationDate(LocalDateTime creationDate) {
+        this.creationDate = creationDate;
+    }
+
+    public BlockForMySql() {
+    }
+
+    public BlockForMySql(String text, LocalDateTime creationDate) {
+        this.text = text;
         this.creationDate = creationDate;
     }
 }

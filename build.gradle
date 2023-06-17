@@ -21,6 +21,8 @@ dependencies {
 	implementation 'mysql:mysql-connector-java'
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
+	implementation 'commons-codec:commons-codec'
+
 }
 
 tasks.named('test') {

@@ -5,12 +5,13 @@ import DlasWEB.dotext.model.BlockForMySql;
 import DlasWEB.dotext.repo.BlockRepoMongoDb;
 import DlasWEB.dotext.repo.BlockRepoMySql;
 import DlasWEB.dotext.service.BlockMongoService;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api")
@@ -62,8 +63,13 @@ public class MainController {
 
     // Create one new doc in Mongo
     @PostMapping("/text")
-    public BlockForMongo createBlockWithText(@RequestBody BlockForMongo blockForMongo) {
-        return blockRepoMongoDb.save(blockForMongo);
+    public BlockForMySql createBlockWithText(@RequestBody BlockForMongo blockForMongo) {
+        blockRepoMongoDb.save(blockForMongo);
+        String md5Hex = DigestUtils.md5Hex(blockForMongo.getId());
+        BlockForMySql blockForMySql = new BlockForMySql();
+        blockForMySql.setText(md5Hex);
+        blockForMySql.setCreationDate(LocalDateTime.now());
+        return blockRepoMySql.save(blockForMySql);
     }
 
     // Create row for Mysql
