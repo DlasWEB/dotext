@@ -2,9 +2,11 @@ package DlasWEB.dotext.controller;
 
 import DlasWEB.dotext.model.BlockForMongo;
 import DlasWEB.dotext.model.BlockForMySql;
+import DlasWEB.dotext.model.Views;
 import DlasWEB.dotext.repo.BlockRepoMongoDb;
 import DlasWEB.dotext.repo.BlockRepoMySql;
 import DlasWEB.dotext.service.BlockMongoService;
+import com.fasterxml.jackson.annotation.JsonView;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,11 +50,20 @@ public class MainController {
 //        return blockRepoMySql.findAll();
 //    }
 
-    //Get one doc from Mongo
+    //Get one doc from Mongo by text from MySQL
     @GetMapping("text/{id}")
-    public BlockForMongo getOneBlockWithTextByIdFromApi(@PathVariable("id") BlockForMongo block) {
+    public BlockForMongo getOneBlockWithTextByIdFromApi(@PathVariable("text") BlockForMySql block) {
+        if (block.getText() != null) {
+            block.getText()
+        }
         return block;
     }
+
+//    //Get one doc from Mongo
+//    @GetMapping("text/{id}")
+//    public BlockForMongo getOneBlockWithTextByIdFromApi(@PathVariable("id") BlockForMongo block) {
+//        return block;
+//    }
 
 //    //Get one row from MySQL
 //    @GetMapping("text/{id}")
