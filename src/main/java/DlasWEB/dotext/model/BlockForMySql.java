@@ -50,7 +50,6 @@ public class BlockForMySql {
 
     public BlockForMySql() {
     }
-
     public BlockForMySql(String text, LocalDateTime creationDate) {
         this.text = text;
         this.creationDate = creationDate;

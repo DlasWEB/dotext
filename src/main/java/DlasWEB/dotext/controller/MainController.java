@@ -2,11 +2,9 @@ package DlasWEB.dotext.controller;
 
 import DlasWEB.dotext.model.BlockForMongo;
 import DlasWEB.dotext.model.BlockForMySql;
-import DlasWEB.dotext.model.Views;
 import DlasWEB.dotext.repo.BlockRepoMongoDb;
 import DlasWEB.dotext.repo.BlockRepoMySql;
 import DlasWEB.dotext.service.BlockMongoService;
-import com.fasterxml.jackson.annotation.JsonView;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,10 +34,10 @@ public class MainController {
     }
 
     // Get all doc from Mongo
-    @GetMapping("text")
+    @GetMapping("get-all")
     public List<BlockForMongo> getAllBlocksWithTextFromApi() {
-
-        return blockRepoMongoDb.findAll();
+        return blockRepoMongoDb.findAllIdsOnly();
+//        return blockRepoMongoDb.findAll();
     }
 
 //    // Get all row from MySQL
@@ -51,12 +49,15 @@ public class MainController {
 //    }
 
     //Get one doc from Mongo by text from MySQL
-    @GetMapping("text/{id}")
-    public BlockForMongo getOneBlockWithTextByIdFromApi(@PathVariable("text") BlockForMySql block) {
-        if (block.getText() != null) {
-            block.getText()
+    @GetMapping("get-one/{text}")
+    public String getOneBlockWithTextByIdFromApi(@PathVariable String text, BlockForMySql block) {
+        if (blockRepoMySql.findByText(text) != null) {
+//            blockRepoMongoDb.findAllIdsOnly();
+            return blockRepoMySql.findByText(text).getText();
         }
-        return block;
+        else {
+            return "Сыылка и привязанная к ней запись не сушествует!";
+        }
     }
 
 //    //Get one doc from Mongo

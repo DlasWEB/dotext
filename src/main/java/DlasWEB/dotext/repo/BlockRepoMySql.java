@@ -6,4 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface BlockRepoMySql extends JpaRepository<BlockForMySql, Long> {
+    BlockForMySql findByText(String text);
 }
