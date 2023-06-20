@@ -2,30 +2,33 @@ package DlasWEB.dotext.controller;
 
 import DlasWEB.dotext.model.BlockForMongo;
 import DlasWEB.dotext.model.BlockForMySql;
+import DlasWEB.dotext.model.UrlInMySql;
 import DlasWEB.dotext.repo.BlockRepoMongoDb;
 import DlasWEB.dotext.repo.BlockRepoMySql;
+import DlasWEB.dotext.repo.UrlRepoMySql;
 import DlasWEB.dotext.service.BlockMongoService;
-import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.Base64;
+import java.util.NoSuchElementException;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api")
 public class MainController {
     private final BlockRepoMySql blockRepoMySql;
     private final BlockRepoMongoDb blockRepoMongoDb;
-
+    private final UrlRepoMySql urlRepoMySql;
     @Autowired
     private BlockMongoService blockMongoService;
-
     @Autowired
-    public MainController(BlockRepoMySql blockRepoMySql, BlockRepoMongoDb blockRepoMongoDb) {
+    public MainController(BlockRepoMySql blockRepoMySql, BlockRepoMongoDb blockRepoMongoDb, UrlRepoMySql urlRepoMySql) {
         this.blockRepoMySql = blockRepoMySql;
         this.blockRepoMongoDb = blockRepoMongoDb;
+        this.urlRepoMySql = urlRepoMySql;
     }
 
     @GetMapping
@@ -33,97 +36,73 @@ public class MainController {
         return "Ответ по запросу localhost:8080/api = Привет из REST Api dotext";
     }
 
-    // Get all doc from Mongo
-    @GetMapping("get-all")
-    public List<BlockForMongo> getAllBlocksWithTextFromApi() {
-        return blockRepoMongoDb.findAllIdsOnly();
+//    // Get all doc from Mongo
+//    @GetMapping("get-all")
+//    public List<BlockForMongo> getAllBlocksWithTextFromApi() {
 //        return blockRepoMongoDb.findAll();
-    }
+//    }
 
 //    // Get all row from MySQL
 //    @GetMapping("text")
 //    @JsonView(Views.FullText.class)
 //    public List<BlockForMySql> getAllBlocksWithTextFromApi() {
-//
 //        return blockRepoMySql.findAll();
 //    }
-
-    //Get one doc from Mongo by text from MySQL
+    //Get text from db
     @GetMapping("get-one/{text}")
-    public String getOneBlockWithTextByIdFromApi(@PathVariable String text, BlockForMySql block) {
-        if (blockRepoMySql.findByText(text) != null) {
-//            blockRepoMongoDb.findAllIdsOnly();
-            return blockRepoMySql.findByText(text).getText();
+    public String getOneBlockWithText(@PathVariable String text) throws NoSuchElementException {
+        String id = new String(Base64.getDecoder().decode(text));
+        Optional<BlockForMySql> byId = blockRepoMySql.findById(Long.valueOf(id));
+        Optional<BlockForMongo> textFromMongo = blockRepoMongoDb.findById(byId.get().getText());
+        if (urlRepoMySql.findByUrl(text) != null && byId.isPresent() && textFromMongo.isPresent()) {
+            return textFromMongo.get().getText();
         }
         else {
-            return "Сыылка и привязанная к ней запись не сушествует!";
+            return "Ссылка или привязанная к ней запись не сушествует!";
         }
     }
-
-//    //Get one doc from Mongo
-//    @GetMapping("text/{id}")
-//    public BlockForMongo getOneBlockWithTextByIdFromApi(@PathVariable("id") BlockForMongo block) {
-//        return block;
-//    }
-
-//    //Get one row from MySQL
-//    @GetMapping("text/{id}")
-//    @JsonView(Views.FullText.class)
-//    public BlockForMySql getOneBlockWithTextByIdFromApi(@PathVariable("id") BlockForMySql block) {
-//        return block;
-//    }
-
-    // Create one new doc in Mongo
+    // Create one new doc in db
     @PostMapping("/text")
-    public BlockForMySql createBlockWithText(@RequestBody BlockForMongo blockForMongo) {
+    public String createBlockWithText(@RequestBody BlockForMongo blockForMongo) {
         blockRepoMongoDb.save(blockForMongo);
-        String md5Hex = DigestUtils.md5Hex(blockForMongo.getId());
         BlockForMySql blockForMySql = new BlockForMySql();
-        blockForMySql.setText(md5Hex);
+        blockForMySql.setText(blockForMongo.getId());
         blockForMySql.setCreationDate(LocalDateTime.now());
-        return blockRepoMySql.save(blockForMySql);
+        blockRepoMySql.save(blockForMySql);
+        UrlInMySql urlInMySql = new UrlInMySql();
+        urlInMySql.setUrl(Base64.getEncoder().encodeToString(blockForMySql.getId().toString().getBytes()));
+        return urlRepoMySql.save(urlInMySql).getUrl();
     }
-
-    // Create row for Mysql
-//    @PostMapping("/text")
-//    @JsonView(Views.FullText.class)
-//    public BlockForMySql createBlockWithText(@RequestBody BlockForMySql blockForMySql) {
-//        blockForMySql.setCreationDate(LocalDateTime.now());
-//        return blockRepoMySql.save(blockForMySql);
-//    }
-
-    // Update one doc in Mongo
-    @PutMapping("text/{id}")
-    public BlockForMongo updateBlockWithText(
-            @PathVariable("id") BlockForMongo blockFromDb,
-            @RequestBody BlockForMongo block
-    ) {
-            BeanUtils.copyProperties(block, blockFromDb, "id");
-            return blockRepoMongoDb.save(blockFromDb);
+    // Update one doc in db
+    @PutMapping("update-one/{text}")
+    public String updateBlockWithText(@PathVariable("text") String text, @RequestBody BlockForMongo block) {
+        String id = new String(Base64.getDecoder().decode(text));
+        Optional<BlockForMySql> byId = blockRepoMySql.findById(Long.valueOf(id));
+        Optional<BlockForMongo> textFromMongo = blockRepoMongoDb.findById(byId.get().getText());
+        if (urlRepoMySql.findByUrl(text) != null && byId.isPresent() && textFromMongo.isPresent()) {
+            BeanUtils.copyProperties(block, textFromMongo.get(), "id");
+            blockRepoMongoDb.save(textFromMongo.get());
+            return textFromMongo.get().getText();
+        }
+        else {
+            return "Ссылка или привязанная к ней запись не сушествует!";
+        }
     }
-
-//    // Update one row in Mysql
-//    @PutMapping("text/{id}")
-//    public BlockForMySql updateBlockWithText(
-//            @PathVariable("id") BlockForMySql blockFromDb,
-//            @RequestBody BlockForMySql block
-//    ) {
-//        BeanUtils.copyProperties(block, blockFromDb, "id");
-//        return blockRepoMySql.save(blockFromDb);
-//    }
-
-    @DeleteMapping("text/{id}")
-    public void deleteBlockWithText(
-            @PathVariable("id") BlockForMongo block
-    ) {
-        blockRepoMongoDb.delete(block);
+      // Delete one doc from Mongo
+    @DeleteMapping("delete-one/{text}")
+    public String deleteBlockWithText(
+            @PathVariable("text") String text) {
+        String id = new String(Base64.getDecoder().decode(text));
+        Optional<BlockForMySql> byId = blockRepoMySql.findById(Long.valueOf(id));
+        Optional<BlockForMongo> textFromMongo = blockRepoMongoDb.findById(byId.get().getText());
+        if (urlRepoMySql.findByUrl(text) != null && byId.isPresent() && textFromMongo.isPresent()) {
+            blockRepoMongoDb.delete(textFromMongo.get());
+            urlRepoMySql.delete(urlRepoMySql.findByUrl(text));
+            blockRepoMySql.delete(byId.get());
+            return "Текст, распологавшийся по ссылке '" + text + "' был успешно удален из базы данных!";
+        }
+        else {
+            return "Ссылка или привязанная к ней запись не сушествует!";
+        }
     }
-
-//      // Delete one doc from Mongo
-//    @DeleteMapping("text/{id}")
-//    public void deleteBlockWithText(
-//            @PathVariable("id") BlockForMySql block
-//    ) {
-//        blockRepoMySql.delete(block);
-//    }
 }
