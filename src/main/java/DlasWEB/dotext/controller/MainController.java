@@ -51,18 +51,24 @@ public class MainController {
     //Get text from db
     @GetMapping("get-one/{text}")
     public String getOneBlockWithText(@PathVariable String text) throws NoSuchElementException {
-        String id = new String(Base64.getDecoder().decode(text));
-        Optional<BlockForMySql> byId = blockRepoMySql.findById(Long.valueOf(id));
-        Optional<BlockForMongo> textFromMongo = blockRepoMongoDb.findById(byId.get().getText());
-        if (urlRepoMySql.findByUrl(text) != null && byId.isPresent() && textFromMongo.isPresent()) {
+        try {
+            String id = new String(Base64.getDecoder().decode(text));
+            Optional<BlockForMySql> byId = blockRepoMySql.findById(Long.valueOf(id));
+            Optional<BlockForMongo> textFromMongo = blockRepoMongoDb.findById(byId.get().getText());
             return textFromMongo.get().getText();
         }
-        else {
+        catch (IllegalArgumentException i) {
+            return "Неправильная ссылка";
+        }
+        catch (NoSuchElementException n) {
             return "Ссылка или привязанная к ней запись не сушествует!";
+        }
+        catch (Exception e) {
+            return "Что-то еще пошло не так, но это не отсутствие ссылки или текста по ней и не неправильность ссылки!";
         }
     }
     // Create one new doc in db
-    @PostMapping("/text")
+    @PostMapping("/create-one")
     public String createBlockWithText(@RequestBody BlockForMongo blockForMongo) {
         blockRepoMongoDb.save(blockForMongo);
         BlockForMySql blockForMySql = new BlockForMySql();
@@ -76,33 +82,44 @@ public class MainController {
     // Update one doc in db
     @PutMapping("update-one/{text}")
     public String updateBlockWithText(@PathVariable("text") String text, @RequestBody BlockForMongo block) {
-        String id = new String(Base64.getDecoder().decode(text));
-        Optional<BlockForMySql> byId = blockRepoMySql.findById(Long.valueOf(id));
-        Optional<BlockForMongo> textFromMongo = blockRepoMongoDb.findById(byId.get().getText());
-        if (urlRepoMySql.findByUrl(text) != null && byId.isPresent() && textFromMongo.isPresent()) {
+        try {
+            String id = new String(Base64.getDecoder().decode(text));
+            Optional<BlockForMySql> byId = blockRepoMySql.findById(Long.valueOf(id));
+            Optional<BlockForMongo> textFromMongo = blockRepoMongoDb.findById(byId.get().getText());
             BeanUtils.copyProperties(block, textFromMongo.get(), "id");
             blockRepoMongoDb.save(textFromMongo.get());
             return textFromMongo.get().getText();
         }
-        else {
+        catch (IllegalArgumentException i) {
+            return "Неправильная ссылка";
+        }
+        catch (NoSuchElementException n) {
             return "Ссылка или привязанная к ней запись не сушествует!";
+        }
+        catch (Exception e) {
+            return "Что-то еще пошло не так, но это не отсутствие ссылки или текста по ней и не неправильность ссылки!";
         }
     }
       // Delete one doc from Mongo
     @DeleteMapping("delete-one/{text}")
-    public String deleteBlockWithText(
-            @PathVariable("text") String text) {
-        String id = new String(Base64.getDecoder().decode(text));
-        Optional<BlockForMySql> byId = blockRepoMySql.findById(Long.valueOf(id));
-        Optional<BlockForMongo> textFromMongo = blockRepoMongoDb.findById(byId.get().getText());
-        if (urlRepoMySql.findByUrl(text) != null && byId.isPresent() && textFromMongo.isPresent()) {
+    public String deleteBlockWithText(@PathVariable("text") String text) {
+        try {
+            String id = new String(Base64.getDecoder().decode(text));
+            Optional<BlockForMySql> byId = blockRepoMySql.findById(Long.valueOf(id));
+            Optional<BlockForMongo> textFromMongo = blockRepoMongoDb.findById(byId.get().getText());
             blockRepoMongoDb.delete(textFromMongo.get());
             urlRepoMySql.delete(urlRepoMySql.findByUrl(text));
             blockRepoMySql.delete(byId.get());
             return "Текст, распологавшийся по ссылке '" + text + "' был успешно удален из базы данных!";
         }
-        else {
+        catch (IllegalArgumentException i) {
+            return "Неправильная ссылка";
+        }
+        catch (NoSuchElementException n) {
             return "Ссылка или привязанная к ней запись не сушествует!";
+        }
+        catch (Exception e) {
+            return "Что-то еще пошло не так, но это не отсутствие ссылки или текста по ней и не неправильность ссылки!";
         }
     }
 }
