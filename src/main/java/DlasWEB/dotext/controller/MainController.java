@@ -13,11 +13,12 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.util.Base64;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/user")
 public class MainController {
     private final BlockRepoMySql blockRepoMySql;
     private final BlockRepoMongoDb blockRepoMongoDb;
@@ -36,11 +37,11 @@ public class MainController {
         return "Ответ по запросу localhost:8080/api = Привет из REST Api dotext";
     }
 
-//    // Get all doc from Mongo
-//    @GetMapping("get-all")
-//    public List<BlockForMongo> getAllBlocksWithTextFromApi() {
-//        return blockRepoMongoDb.findAll();
-//    }
+    // Get all doc from Mongo
+    @GetMapping("get-all")
+    public List<BlockForMongo> getAllBlocksWithTextFromApi() {
+        return blockRepoMongoDb.findAll();
+    }
 
 //    // Get all row from MySQL
 //    @GetMapping("text")
