@@ -75,6 +75,7 @@ public class MainController {
         BlockForMySql blockForMySql = new BlockForMySql();
         blockForMySql.setText(blockForMongo.getId());
         blockForMySql.setCreationDate(LocalDateTime.now());
+        blockForMySql.setLifeTime("1 минута");
         blockRepoMySql.save(blockForMySql);
         UrlInMySql urlInMySql = new UrlInMySql();
         urlInMySql.setUrl(Base64.getEncoder().encodeToString(blockForMySql.getId().toString().getBytes()));
@@ -104,6 +105,7 @@ public class MainController {
       // Delete one doc from Mongo
     @DeleteMapping("delete-one/{text}")
     public String deleteBlockWithText(@PathVariable("text") String text) {
+
         try {
             String id = new String(Base64.getDecoder().decode(text));
             Optional<BlockForMySql> byId = blockRepoMySql.findById(Long.valueOf(id));

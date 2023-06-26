@@ -15,14 +15,13 @@ import java.time.LocalDateTime;
 public class BlockForMySql {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @JsonView(Views.IdName.class)
     private Long id;
-    @JsonView(Views.IdName.class)
     private String text;
     @Column(updatable = false)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     @JsonView(Views.FullText.class)
     private LocalDateTime creationDate;
+    private String lifeTime;
 
     public Long getId() {
         return id;
@@ -48,10 +47,19 @@ public class BlockForMySql {
         this.creationDate = creationDate;
     }
 
+    public String getLifeTime() {
+        return lifeTime;
+    }
+
+    public void setLifeTime(String lifeTime) {
+        this.lifeTime = lifeTime;
+    }
+
     public BlockForMySql() {
     }
-    public BlockForMySql(String text, LocalDateTime creationDate) {
+    public BlockForMySql(String text, LocalDateTime creationDate, String lifeTime) {
         this.text = text;
         this.creationDate = creationDate;
+        this.lifeTime = lifeTime;
     }
 }
