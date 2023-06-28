@@ -75,7 +75,7 @@ public class MainController {
         BlockForMySql blockForMySql = new BlockForMySql();
         blockForMySql.setText(blockForMongo.getId());
         blockForMySql.setCreationDate(LocalDateTime.now());
-        blockForMySql.setLifeTime("1 минута");
+        blockForMySql.setLifeTime("1 час");
         blockRepoMySql.save(blockForMySql);
         UrlInMySql urlInMySql = new UrlInMySql();
         urlInMySql.setUrl(Base64.getEncoder().encodeToString(blockForMySql.getId().toString().getBytes()));

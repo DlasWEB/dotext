@@ -30,16 +30,15 @@ public class BlocksWithTextService {
         return java.sql.Timestamp.valueOf(dateToConvert);
     }
 
-    @Scheduled(fixedDelayString = "PT1M")
+    @Scheduled(fixedDelayString = "PT1H")
     public void deleteBlockWithTextWithTimelifeOneHour () {
-        List<BlockForMySql> blocksWithTextForDeleteList = blockRepoMySql.findAllByLifeTime("1 минута");
+        List<BlockForMySql> blocksWithTextForDeleteList = blockRepoMySql.findAllByLifeTime("1 час");
         if (blocksWithTextForDeleteList.size() != 0) {
             for(BlockForMySql block : blocksWithTextForDeleteList) {
                 try {
-                    Date start = convertToDateViaSqlTimestamp(block.getCreationDate());
-                    Date end = convertToDateViaSqlTimestamp(LocalDateTime.now());
-                    long diffInMinutes = TimeUnit.MILLISECONDS.toMinutes(end.getTime() - start.getTime());
-                    if (diffInMinutes > 1) {
+                    if (TimeUnit.MILLISECONDS.toHours(
+                            convertToDateViaSqlTimestamp(LocalDateTime.now()).getTime() -
+                                    convertToDateViaSqlTimestamp(block.getCreationDate()).getTime()) > 1) {
                         blockRepoMongoDb.delete(blockRepoMongoDb.findById(block.getText()).get());
                         urlRepoMySql.delete(Optional.ofNullable(urlRepoMySql.findByUrl(
                                 Base64.getEncoder().encodeToString(block.getId().toString().getBytes()))).get());
