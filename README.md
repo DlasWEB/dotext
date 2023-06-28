@@ -143,8 +143,8 @@
 
    ## Разработчики
 
-    - [Денис Ласкин](https://github.com/DlasWEB)
+   [Денис Ласкин](https://github.com/DlasWEB)
 
    ## Лицензия
 
-   Проект **[Kubyshka](https://github.com/DlasWEB/kubyshka)** распространяется под лицензией GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007.
+   Проект **[Дотекст](https://github.com/DlasWEB/dotext)** распространяется под лицензией GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007.
