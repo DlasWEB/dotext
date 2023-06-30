@@ -145,13 +145,13 @@
 
    ```{ "firstname": "user-name", "lastname": "user-lastname", "email": "your@mail.com", "password": "12345", "role": "USER" }```
 
-В случае успешного исхода в ответ получите refresh_token
+В случае успешного исхода в ответ придет refresh_token
 
 2.  Авторизация пользователя: POST запрос по адерсу http://ваш_домен:ваш_порт/api/auth/authenticate. В теле запроса указать:
 
 ```{ "email": "your@mail.com", "password": "12345" }```
 
-В случае успешного исхода в ответ получите refresh_token
+В случае успешного исхода в ответ придет refresh_token
 
 3. Создание записи: POST запрос по адерсу http://ваш_домен:ваш_порт/api/user/create-one.
 
